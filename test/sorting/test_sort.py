@@ -19,5 +19,10 @@ class TestMergeSort(TestSortBase, unittest.TestCase):
         return sort_classes.MergeSort
 
 
+class TestBubbleSort(TestSortBase, unittest.TestCase):
+    def get_sort_class(self):
+        return sort_classes.BubbleSort
+
+
 if __name__ == '__main__':
     unittest.main()
