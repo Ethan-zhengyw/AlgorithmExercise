@@ -14,5 +14,10 @@ class TestInsertionSort(TestSortBase, unittest.TestCase):
         return sort_classes.InsertionSort
 
 
+class TestMergeSort(TestSortBase, unittest.TestCase):
+    def get_sort_class(self):
+        return sort_classes.MergeSort
+
+
 if __name__ == '__main__':
     unittest.main()

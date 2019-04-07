@@ -11,14 +11,11 @@ class TestSortBase:
     def get_sort_class(self):
         pass
 
-    def setUp(self):
-        self.sort_class = self.get_sort_class()
-
     def check(self, array, array_expected):
         local_time = time.time()
-        self.sort_class.sort(array)
+        self.get_sort_class().sort(array)
         print '[%s], size [%s], run time is\t %.10f\n' \
-              % (self.sort_class.__name__, len(array), time.time() - local_time)
+              % (self.get_sort_class().__name__, len(array), time.time() - local_time)
         self.assertEqual(array_expected, array)
 
     def test_array_empty(self):
