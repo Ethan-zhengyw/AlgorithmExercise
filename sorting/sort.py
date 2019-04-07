@@ -3,6 +3,7 @@ from sorting.quick_sort import quick_sort
 from sorting.insertion_sort import insertion_sort_3 as insertion_sort
 from sorting.merge_sort import merge_sort
 from sorting.bubble_sort import bubble_sort
+from sorting.selection_sort import selection_sort
 
 
 class Sort:
@@ -36,3 +37,9 @@ class BubbleSort(Sort):
     @staticmethod
     def sort(array):
         bubble_sort(array)
+
+
+class SelectionSort(Sort):
+    @staticmethod
+    def sort(array):
+        selection_sort(array)

@@ -24,5 +24,10 @@ class TestBubbleSort(TestSortBase, unittest.TestCase):
         return sort_classes.BubbleSort
 
 
+class TestSelectionSort(TestSortBase, unittest.TestCase):
+    def get_sort_class(self):
+        return sort_classes.SelectionSort
+
+
 if __name__ == '__main__':
     unittest.main()
