@@ -29,5 +29,10 @@ class TestSelectionSort(TestSortBase, unittest.TestCase):
         return sort_classes.SelectionSort
 
 
+class TestShellSort(TestSortBase, unittest.TestCase):
+    def get_sort_class(self):
+        return sort_classes.ShellSort
+
+
 if __name__ == '__main__':
     unittest.main()
