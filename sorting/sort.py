@@ -5,6 +5,7 @@ from sorting.merge_sort import merge_sort
 from sorting.bubble_sort import bubble_sort
 from sorting.selection_sort import selection_sort
 from sorting.shell_sort import shell_sort_2 as shell_sort
+from sorting.heap_sort import heap_sort
 
 
 class Sort:
@@ -50,3 +51,9 @@ class ShellSort(Sort):
     @staticmethod
     def sort(array):
         shell_sort(array)
+
+
+class HeapSort(Sort):
+    @staticmethod
+    def sort(array):
+        heap_sort(array)
