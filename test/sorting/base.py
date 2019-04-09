@@ -44,7 +44,7 @@ class TestSortBase:
         self.check(array, array_expected)
 
     def test_array_huge(self):
-        array_size = 1000
+        array_size = 10000
         array = [random.randint(1, 101) for _ in range(array_size)]
         array_expected = list(array)
         local_time = time.time()

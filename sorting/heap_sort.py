@@ -1,45 +1,35 @@
 def heap_sort(array):
+    build_max_heap(array)
     end = len(array) - 1
     while end > 0:
-        build_max_heap(array, end)
         array[0], array[end] = array[end], array[0]
         end -= 1
+        max_heapify(array, 0, end)
 
 
-def build_max_heap(array, end):
-    while not is_max_heap(array, end):
-        max_heapify(array, end)
-
-
-def is_max_heap(array, end):
-    i = end / 2
-    result = True
-
+# Build a max heap from bottom to top
+# by calling max_heapify
+def build_max_heap(array):
+    end = len(array) - 1
+    i = (end - 1) / 2
     while i >= 0:
-        left_child_index = 2 * i + 1
-        right_child_index = 2 * i + 2
-
-        if (left_child_index <= end) and (array[left_child_index] > array[i]) or \
-                (right_child_index <= end) and (array[right_child_index] > array[i]):
-            result = False
-            break
+        max_heapify(array, i, end)
         i -= 1
 
-    return result
 
+# recursively fix the max-heap violation of the sub tree
+# Time complexity: O(logN)
+def max_heapify(array, i, end):
+    max_index = i
+    left_child_index = 2 * max_index + 1
+    right_child_index = 2 * max_index + 2
 
-def max_heapify(array, end):
-    i = end / 2
+    if (left_child_index <= end) and (array[left_child_index] > array[i]):
+        max_index = left_child_index
 
-    while i >= 0:
+    if (right_child_index <= end) and (array[right_child_index] > array[max_index]):
+        max_index = right_child_index
 
-        left_child_index = 2 * i + 1
-        right_child_index = 2 * i + 2
-
-        if (left_child_index <= end) and (array[left_child_index] > array[i]):
-            array[left_child_index], array[i] = array[i], array[left_child_index]
-
-        if (right_child_index <= end) and (array[right_child_index] > array[i]):
-            array[right_child_index], array[i] = array[i], array[right_child_index]
-
-        i -= 1
+    if max_index != i:
+        array[i], array[max_index] = array[max_index], array[i]
+        max_heapify(array, max_index, end)
