@@ -39,5 +39,10 @@ class TestHeapSort(TestSortBase, unittest.TestCase):
         return sort_classes.HeapSort
 
 
+class TestCountingSort(TestSortBase, unittest.TestCase):
+    def get_sort_class(self):
+        return sort_classes.CountingSort
+
+
 if __name__ == '__main__':
     unittest.main()
