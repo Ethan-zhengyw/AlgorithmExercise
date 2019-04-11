@@ -7,6 +7,7 @@ from sorting.selection_sort import selection_sort
 from sorting.shell_sort import shell_sort_2 as shell_sort
 from sorting.heap_sort import heap_sort
 from sorting.counting_sort import counting_sort
+from sorting.bucket_sort import bucket_sort
 
 
 class Sort:
@@ -64,3 +65,9 @@ class CountingSort(Sort):
     @staticmethod
     def sort(array):
         counting_sort(array)
+
+
+class BucketSort(Sort):
+    @staticmethod
+    def sort(array):
+        bucket_sort(array)

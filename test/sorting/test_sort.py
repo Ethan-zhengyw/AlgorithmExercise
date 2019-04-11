@@ -44,5 +44,10 @@ class TestCountingSort(TestSortBase, unittest.TestCase):
         return sort_classes.CountingSort
 
 
+class TestBucketSort(TestSortBase, unittest.TestCase):
+    def get_sort_class(self):
+        return sort_classes.BucketSort
+
+
 if __name__ == '__main__':
     unittest.main()
