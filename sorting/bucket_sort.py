@@ -5,12 +5,12 @@ def bucket_sort(array):
     if not array:
         return
 
-    bucket_num = 10
+    bucket_num = 50
     minimum = min(array)
     maximum = max(array)
     distance = (maximum - minimum + 1) / (bucket_num - 1)
 
-    buckets = [[] for _ in range(bucket_num)]
+    buckets = [[] for _ in range(bucket_num + 1)]
 
     for n in array:
         if distance == 0:
@@ -18,11 +18,9 @@ def bucket_sort(array):
         else:
             buckets[(n - minimum) / distance].append(n)
 
-    for bucket in buckets:
-        sort(bucket)
-
     i = 0
     for bucket in buckets:
+        sort(bucket)
         for n in bucket:
             array[i] = n
             i += 1
