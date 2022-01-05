@@ -1,0 +1,535 @@
+package main
+
+import (
+	"fmt"
+	"math/rand"
+	"sort"
+)
+
+const testSize = 20
+
+func main()  {
+
+	data := generateTestData()
+	quickSort(data, 0, len(data) - 1)
+	assertDataSorted(data)
+
+	data = generateTestData()
+	bubbleSort(data, 0, len(data) - 1)
+	assertDataSorted(data)
+
+	data = generateTestData()
+	selectSort(data, 0, len(data) - 1)
+	assertDataSorted(data)
+
+	data = generateTestData()
+	insertSort(data, 0, len(data) - 1)
+	assertDataSorted(data)
+
+	data = generateTestData()
+	shellSort(data, 0, len(data) - 1)
+	assertDataSorted(data)
+
+	data = generateTestData()
+	assertDataSorted(mergeSort(data))
+
+	data = generateTestData()
+	heapSort(data, 0, len(data) - 1)
+	assertDataSorted(data)
+
+	data = generateTestData()
+	countingSort(data)
+	assertDataSorted(data)
+
+	data = generateTestData()
+	bucketSort(data, 0, len(data) - 1)
+	assertDataSorted(data)
+
+	data = generateTestData()
+	radixSort(data, 0, len(data) - 1)
+	assertDataSorted(data)
+}
+
+func generateTestData() []int {
+	data := make([]int, testSize)
+
+	for i := 0; i < testSize; i++ {
+		data[i] = rand.Intn(1000)
+	}
+
+	fmt.Printf("%+v generated.\n", data)
+	return data
+}
+
+func assertDataSorted(data []int) {
+	fmt.Printf("asserting data: %+v.\n", data)
+	if !sort.SliceIsSorted(data, func(i, j int) bool {
+		return data[i] < data[j]
+	}) {
+		errMsg := fmt.Sprintf("not sorted.\n")
+		panic(errMsg)
+	}
+}
+
+func swap(data []int, i, j int) {
+	data[i], data[j] = data[j], data[i]
+}
+
+// 算法思想：
+//   * 分治
+//   * 选择一个元素，按比选择的元素小、大将序列分为左、右两个子序列
+//   * 对左、右两个子序列重复相同操作，直至子序列包含元素个数小于2
+func quickSort(data []int, start, end int) {
+	if start < 0 || end > len(data) || start > end {
+		panic(fmt.Sprintf("unexpected index, data: %+v, start: %d, end: %d", data, start, end))
+	}
+
+	if start == end {
+		return
+	}
+
+	pivotIdx := doPivot(data, start, len(data) - 1)
+
+	if pivotIdx - 1 > start {
+		quickSort(data, start, pivotIdx - 1)
+	}
+
+	if pivotIdx + 1 < end {
+		quickSort(data, pivotIdx + 1, end)
+	}
+}
+
+func doPivot(data []int, start, end int) int {
+
+	pivotIdx := start
+
+	nextIdxOfPivotIdx := pivotIdx + 1
+
+	for i := nextIdxOfPivotIdx; i <= end; i++ {
+		if data[i] < data[pivotIdx] {
+			data[i], data[nextIdxOfPivotIdx] = data[nextIdxOfPivotIdx], data[i]
+			nextIdxOfPivotIdx++
+		}
+	}
+
+	finalPivotIdx := nextIdxOfPivotIdx - 1
+
+	data[pivotIdx], data[finalPivotIdx] = data[finalPivotIdx], data[pivotIdx]
+
+	return finalPivotIdx
+}
+
+// 算法思想
+// * 先将最大值"冒泡"至最右端
+//   - 一次比较左右两个元素，将顺序调整对
+//   - 从左往右，一个循环后，最大值"冒泡"至最右端
+// * 将最大值排除在外后的序列作为新的待"治理"的新序列，将最大值"冒泡"到最右端，直值新序列包含的元素个数小于2
+func bubbleSort(data []int, start, end int) {
+
+	if start == end {
+		return
+	}
+
+	swapped := false
+
+	for i := start; i < end; i++ {
+		if data[i] > data[i + 1] {
+			swap(data, i, i + 1)
+			swapped = true
+		}
+	}
+
+	if swapped {
+		bubbleSort(data, start, end - 1)
+	}
+
+}
+
+// 算法思想：
+//   * 选择最大的元素放到最右端
+//   * 将最右端的元素排除在外后的序列作为新序列
+//   * 在新序列中选择最大的元素放到新序列的最右端，重复操作直到新序列的元素个数为1
+func selectSort(data []int, start, end int) {
+
+	if start < 0 || end > len(data) {
+		panic("unexpected index.")
+	}
+
+	if start == end {
+		return
+	}
+
+	idxOfMaxElement := start
+	for i := start + 1; i <= end; i++ {
+		if data[i] > data[idxOfMaxElement] {
+			idxOfMaxElement = i
+		}
+	}
+
+	if idxOfMaxElement != end {
+		swap(data, idxOfMaxElement, end)
+	}
+
+	selectSort(data, start, end - 1)
+}
+
+
+// 算法思想：
+//   * 将第一个元素视作已排序的序列
+//   * 将已排序的序列后面的元素，作为待插入已排序的序列的元素
+//   * 将带插入的元素依次与已排序的序列中的元素对比，找到插入的位置
+//   * 将待插入的元素插入已排序的序列后，已排序的序列长度增加一个单位
+//   * 重复以上操作直至已排序的长度等于原序列长度
+func insertSort(data []int, start, end int) {
+	size := end - start + 1
+
+	for maxSizeOfSortedData := 1; maxSizeOfSortedData < size; maxSizeOfSortedData++ {
+
+		idxSelected := start + maxSizeOfSortedData
+		toInsert := data[idxSelected]
+
+		idxToInsert := idxSelected
+
+		for i := idxSelected - 1; i >= 0; i-- {
+			if data[i] > data[i+1] {
+				swap(data, i, i+1)
+				idxToInsert--
+			}
+		}
+
+		data[idxToInsert] = toInsert
+	}
+}
+
+// 算法思想：
+//   * 将序列按照一定的增量，划分为多个子序列
+//   * 对多个子序列分别使用插入排序算法排序（能够整体上，让小的元素在算法的前期跳到序列的前方）
+//   * 缩小增量，重复操作，直至增量为1
+func shellSort(data []int, start, end int) {
+	for gap := (end - start) / 2; gap >= 1; gap /= 2 {
+		for i := 0; i <= gap; i++ {
+			insertSortForShellSort(data, i, end, gap)
+		}
+	}
+}
+
+func insertSortForShellSort(data []int, start, end, gap int) {
+	for i := start + gap; i <= end; i += gap {
+		toInsert := data[i]
+		idxToInsert := i
+
+		// 在start ~ i - gap 中间寻找合适的位置插入 toInsert
+		for j := i - gap; j >= start; j -= gap {
+			if data[j] > toInsert {
+				// 腾出位置存放待插入的数
+				data[j + gap] = data[j]
+				// 更新待插入的位置
+				idxToInsert = j
+			} else {
+				// start ~ i - gap为已有序的序列，不必继续循环
+				break
+			}
+		}
+
+		data[idxToInsert] = toInsert
+
+	}
+}
+
+// 算法思想：
+//   * 分治
+//   * 将序列分为左右两个子序列
+//   * 对左右两个子序列分别进行归并排序，排序后可快速合并两个有序子序列
+//   * 如果子序列长度为1，则为有序的子序列
+func mergeSort(data []int) []int {
+	size := len(data)
+
+	if size < 2 {
+		return data
+	}
+
+	middleIdx := size / 2
+
+	left := mergeSort(data[0:middleIdx])
+	right := mergeSort(data[middleIdx:size])
+
+	return merge(left, right)
+}
+
+func merge(left, right []int) []int {
+	lengthLeft := len(left)
+	lengthRight := len(right)
+	lengthMerged := lengthLeft + lengthRight
+
+	merged := make([]int, lengthMerged)
+
+	idxLeft := 0
+	idxRight := 0
+	idxMerged := 0
+
+	for idxLeft < lengthLeft && idxRight < lengthRight {
+		if left[idxLeft] < right[idxRight] {
+			merged[idxMerged] = left[idxLeft]
+			idxMerged++
+			idxLeft++
+		} else if left[idxLeft] == right[idxRight] {
+			merged[idxMerged] = left[idxLeft]
+			merged[idxMerged + 1] = right[idxRight]
+			idxMerged += 2
+			idxLeft++
+			idxRight++
+		} else if left[idxLeft] > right[idxRight] {
+			merged[idxMerged] = right[idxRight]
+			idxMerged++
+			idxRight++
+		}
+	}
+
+	for idxLeft < lengthLeft {
+		merged[idxMerged] = left[idxLeft]
+		idxMerged++
+		idxLeft++
+	}
+
+	for idxRight < lengthRight {
+		merged[idxMerged] = right[idxRight]
+		idxMerged++
+		idxRight++
+	}
+
+	return merged
+}
+
+// 算法思想
+//   - 递归
+//   - 递归结束条件：待排序序列只包含一个元素
+//   - 建立最大堆
+//   - 将堆顶元素置换到末尾
+//   - 将末尾元素排除在外后得到新序列，对新序列进行堆排序
+func heapSort(data []int, start, end int) {
+	size := len(data)
+
+	if start < 0 || end >= size {
+		panic("unexpected start or end.")
+	}
+
+	if start == end {
+		return
+	}
+
+	makeMaxHeap(data, end)
+
+	swap(data, start, end)
+
+	heapSort(data, start, end - 1)
+}
+
+func makeMaxHeap(data []int, end int) {
+
+	idxOfLastParent := (end - 1) / 2
+
+	// 遍历所有的非叶子节点，进行冒泡操作
+	for i := idxOfLastParent; i >= 0; i-- {
+		bubbleUp(data, i, end)
+	}
+
+}
+
+// 把大的子节点交换上来，就好像冒泡一样
+func bubbleUp(data []int, idxToSift, end int) {
+	idxOfLeftChild := 2 * idxToSift + 1
+	valOfLeftChild := data[idxOfLeftChild]
+
+	idxOfMaxChild := idxOfLeftChild
+	maxValOfChild := valOfLeftChild
+
+	idxOfRightChild := idxOfLeftChild + 1
+	if idxOfRightChild <= end && data[idxOfRightChild] > maxValOfChild {
+		maxValOfChild = data[idxOfRightChild]
+		idxOfMaxChild = idxOfRightChild
+	}
+
+	if maxValOfChild > data[idxToSift] {
+		swap(data, idxToSift, idxOfMaxChild)
+	}
+}
+
+// 算法思想：
+//   - 计数后
+//   - 按小大顺序取出即可
+func countingSort(data []int) {
+	size := len(data)
+	min, max := data[0], data[0]
+
+	for i := 1; i < size; i++ {
+		if data[i] < min {
+			min = data[i]
+		}
+
+		if data[i] > max {
+			max = data[i]
+		}
+	}
+
+	dataRange := max - min + 1  // [min, max], e.g, [4, 9]  ==> 4, 5, 6, 7, 8, 9
+	tmpMap := make(map[int]int, dataRange + 1)
+
+	for i := 0; i < size; i++ {
+		tmpMap[data[i] - min]++  // 6 - min --> 2
+	}
+
+	idx := 0
+
+	for i := min; i <= max; i++ {
+		for tmpMap[i - min] > 0 {
+			data[idx] = i
+			idx++
+			tmpMap[i - min]--
+		}
+	}
+}
+
+
+// 算法思想：
+//   - 将数据分到有序的桶里
+//   - 对每个桶里的数据选择合适的排序算法进行排序
+//   - 合并
+func bucketSort(data []int, start, end int, numOfBucket ...int) {
+	var buckets [][]int
+
+	if len(numOfBucket) == 0 {
+		buckets = splitToBuckets(data, start, end, 5)
+	} else {
+		buckets = splitToBuckets(data, start, end, numOfBucket[0])
+	}
+
+	for _, bucket := range buckets {
+		quickSort(bucket, 0, len(bucket) - 1)
+	}
+
+	idx := 0
+	for _, bucket := range buckets {
+		for i := 0; i < len(bucket); i++ {
+			data[idx] = bucket[i]
+			idx++
+		}
+	}
+}
+
+func splitToBuckets(data []int, start, end, numOfBucket int) [][]int {
+	min, max := findMinAndMax(data, start, end)
+	bucketSize := (max - min + 1) / numOfBucket + 1
+
+	buckets := make([][]int, numOfBucket)
+
+	for i := start; i <= end; i++ {
+		bucketIdx := (data[i] - min) / bucketSize
+		buckets[bucketIdx] = append(buckets[bucketIdx], data[i])
+	}
+
+	return buckets
+
+}
+
+func findMinAndMax(data []int, start, end int) (int, int) {
+	min, max := data[0], data[0]
+
+	for i := start; i <= end; i++ {
+		if data[i] < min {
+			min = data[i]
+		}
+
+		if data[i] > max {
+			max = data[i]
+		}
+	}
+
+	return min, max
+}
+
+
+// 算法思想：
+//   - 基于桶排序
+//   - 按个、十、百...位，分别进行桶排序
+func radixSort(data []int, start, end int) {
+	// max = 1000
+
+	for i := 1; i <= 4; i++ {
+		// 1，2, 3, 4 ==> 个位、十位、百位、千位
+		bucketSortForRadixSort(data, start, end, i)
+	}
+}
+
+func getRadixNum(num, radix int) int {
+	for i := 1; i < radix; i++ {
+		num /= 10
+	}
+
+	return num % 10
+}
+
+func bucketSortForRadixSort(data []int, start, end, radix int) {
+
+	buckets := make(map[int][]int, 0)
+
+	for i := 0; i < 10; i++ {
+		buckets[i] = make([]int, 0)
+	}
+
+	for i := start; i <= end; i++ {
+		bucketIdx := getRadixNum(data[i], radix)
+		buckets[bucketIdx] = append(buckets[bucketIdx], data[i])
+	}
+
+	for i := 0; i < 10; i++ {
+		if len(buckets[i]) > 0 {
+		    quickSortForRadixSort(buckets[i], 0, len(buckets[i]) - 1, radix)
+		}
+	}
+
+	idx := 0
+	for i := 0; i < 10; i++ {
+		bucket := buckets[i]
+		for j := 0; j < len(bucket); j++ {
+			data[idx] = bucket[j]
+			idx++
+		}
+	}
+}
+
+func quickSortForRadixSort(data []int, start, end, radix int) {
+	if start == end {
+		return
+	}
+
+	pivot := doPivotForRadixSort(data, start, end, radix)
+
+	if pivot - 1 > start {
+		quickSortForRadixSort(data, start, pivot - 1, radix)
+	}
+
+	if pivot + 1 < end {
+		quickSortForRadixSort(data, pivot + 1, end, radix)
+	}
+}
+
+func doPivotForRadixSort(data []int, start, end, radix int) int {
+	pivotIdx := start
+	pivot := data[pivotIdx]
+	pivotRadixNum := getRadixNum(pivot, radix)
+
+	idxNextToPivot := start + 1
+
+	for i := idxNextToPivot; i <= end; i++ {
+		if getRadixNum(data[i], radix) < pivotRadixNum {
+			swap(data, i, idxNextToPivot)
+			idxNextToPivot++
+		}
+	}
+
+	finalPivotIdx := idxNextToPivot - 1
+
+	swap(data, pivotIdx, finalPivotIdx)
+
+	return finalPivotIdx
+}
